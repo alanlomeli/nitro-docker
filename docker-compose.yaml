@@ -42,6 +42,15 @@ services:
     networks:
       nitro:
 
+    atom:
+      container_name: atom
+      depends_on:
+      - mysql
+      networks:
+        nitro:
+      volumes:
+        - ./atom/:/app/
+
   mysql:
     container_name: mysql
     image: mariadb:10.6
