@@ -15,8 +15,9 @@ start-all:
 # Close docker containers, remove images and clean volumes
 clean-docker:
   docker-compose down
-  docker image rm nitro-docker_arcturus -f
-  docker image rm nitro-docker_nitro -f
+  docker image rm nitro-docker-arcturus -f
+  docker image rm nitro-docker-nitro -f
+  docker image rm nitro-docker-atom -f
   docker volume rm nitro-docker_volume-arcturus-maven-repo
   docker volume rm nitro-docker_volume-arcturus-target
   docker volume rm nitro-docker_volume-mysql
@@ -71,6 +72,9 @@ start-nitro:
 shell-nitro:
   docker exec -it nitro bash
 
+shell-atom:
+  docker exec -it atom bash
+
 # Watch Nitro dev server's output
 watch-nitro:
   docker exec nitro supervisorctl tail -f nitro-dev-server
@@ -81,5 +85,9 @@ extract-nitro-assets:
   docker exec -it nitro bash -c "cp /app/configuration/nitro-converter/configuration.json /app/nitro-converter/configuration.json"
   docker exec -it nitro bash -c "cd /app/nitro-converter; yarn ts-node-dev --transpile-only src/Main.ts"
   docker exec -it nitro bash -c "echo 'Moving assets...'"
-  docker exec -it nitro bash -c "rsync -r /app/nitro-converter/assets/* /app/nitro-assets/"
+  docker exec -it nitro bash -c "rsync -r /app/nitro-converter/assets/* /app/nitro-assets"
   docker exec -it nitro bash -c "echo 'Done !'"
+
+# Run migrations for housekeeping, must do after initial setup
+migrate:
+    docker exec -it atom bash -c "cd /app/atom-hk/; php artisan migrate --seed"

@@ -35,6 +35,7 @@ services:
       - ./nitro/:/app/
       - volume-nitro-converter-node-modules:/app/nitro-converter/node_modules
       - volume-nitro-react-node-modules:/app/nitro-react/node_modules
+      - ./nitro/:/nitro-app   # Mount the /app directory from Nitro into /nitro-app in Atom
     ports:
       - 1080:5154
       - 8080:8080
@@ -42,14 +43,22 @@ services:
     networks:
       nitro:
 
-    atom:
+  atom:
       container_name: atom
+      build:
+        context: atom
+      entrypoint: ["/bin/sh","/app/scripts/build.sh"]
       depends_on:
       - mysql
-      networks:
-        nitro:
+      - nitro
       volumes:
         - ./atom/:/app/
+        - ./nitro/:/nitro-app   # Mount the /app directory from Nitro into /nitro-app in Atom
+      ports:
+        - 80:80
+        - 666:666
+      networks:
+        nitro:
 
   mysql:
     container_name: mysql
